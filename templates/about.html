@@ -179,6 +179,8 @@
 {% else %}
 <p>Tidak ditemukan dasar hukum yang sesuai dengan jawaban Anda.</p>
 {% endif %}
+    <a class="btn btn-dark mt-4" href="{{ url_for('home') }}">Kembali ke Beranda</a>
+
 
             </div>
         </div>
@@ -276,43 +278,5 @@
 
 
 
-
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Hasil Analisa Sistem</title>
-</head>
-<body>
-    <h2>Hasil Analisa Sistem</h2>
-
-    {% if hasil %}
-        <p>Sistem telah menentukan jenis kejahatan dan memberikan saran hukum berdasarkan jawaban Anda.</p>
-        <h3>Dasar Hukum yang Ditemukan:</h3>
-        <ul>
-            {% for item in hasil %}
-            <li>
-                <strong>{{ item.pasal.pasal }}</strong><br>
-                <em>{{ item.pasal.pelanggaran }}</em><br>
-                <p><strong>Deskripsi:</strong> {{ item.pasal.deskripsi }}</p>
-                <p><strong>Hukuman Maksimal:</strong> {{ item.pasal.hukuman_max }}</p>
-                <p><strong>Unsur yang cocok:</strong> {{ item.matched_tokens | join(', ') }}</p>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <h3>Unsur Jawaban yang Anda Pilih:</h3>
-        <ul>
-            {% for j in jawaban %}
-            <li>{{ j }}</li>
-            {% endfor %}
-        </ul>
-
-        <p>Berdasarkan rumusan pidana pada pasal di atas, keputusan sistem cocok dengan unsur pidana yang Anda pilih, dan pasal-pasal tersebut layak dijadikan dasar hukum penuntutan.</p>
-    {% else %}
-        <p><strong>Tidak ditemukan pasal yang cocok sepenuhnya</strong> berdasarkan jawaban Anda. Coba periksa kembali jawaban yang diberikan.</p>
-    {% endif %}
-
-    <a href="{{ url_for('home') }}">Kembali ke Beranda</a>
 </body>
 </html>
