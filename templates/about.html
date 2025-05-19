@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>ariclaw</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/flaticon.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/magnific-popup.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slick.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gijgo.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nice-select.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Header -->
+<header class="main_menu home_menu">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-12">
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <a class="navbar-brand" href="{{ url_for('home') }}">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="menu_icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse main-menu-item" id="navbarSupportedContent">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('dasar') }}">Dasar Hukum</a></li>
+                        </ul>
+                    </div>
+                    <a href="{{ url_for('practice') }}" class="d-none d-sm-block menu_btn">Cek Hukum</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Breadcrumb -->
+<section class="breadcrumb breadcrumb_bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb_iner text-center">
+                    <div class="breadcrumb_iner_item">
+                        <h2>Tuntutan Maksimal Yang Dikenakan</h2>
+                        <h3 style="font-weight: bold; color: #ab7636; font-size: 28pt;">
+ 
+            {% if hukuman_tertinggi %}
+             {{ hukuman_tertinggi }}
+               
+
+            {% endif %}
+
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about_part">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <div class="about_part_img text-center">
+                    <img style="max-width: 75%;" src="{{ url_for('static',filename='img/about_2.png') }}" alt="Ilustrasi Hukum">
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-10 text-center">
+                <h4 style="font-weight: bold; color: #000000; font-style: italic; margin-bottom: 50px;">
+                   Hasil Analisa Pasal Yang Dikenakan 
+                </h4>
+{% if hasil %}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Pasal</th>
+                <th>Pelanggaran</th>
+                <th>Deskripsi</th>
+                <th>Hukuman Maksimal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in hasil %}
+            <tr>
+                <td><strong>{{ item.pasal.pasal }}</strong></td>
+                <td><em>{{ item.pasal.pelanggaran }}</em></td>
+                <td>{{ item.pasal.deskripsi }}</td>
+                <td>{{ item.pasal.hukuman_max }}</td>
+                <!-- <td>{{ item.matched_tokens | join(', ') }}</td> -->
+            </tr>
+
+            {% if not loop.last %}
+<tr>
+    <td colspan="5" class="text-center"><strong>Junto</strong></td>
+</tr>
+{% endif %}
+            {% endfor %}
+
+            <!-- Baris 'Hukuman' -->
+               {% if hukuman_tertinggi %}
+            
+               
+
+          
+            <tr>
+                <td colspan="5" class="text-center"><strong>Hukuman Maksimal Yang Dapat Dikenakan  {{ hukuman_tertinggi }}</strong></td>
+            </tr>
+              {% endif %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>Tidak ditemukan dasar hukum yang sesuai dengan jawaban Anda.</p>
+{% endif %}
+
+            </div>
+        </div>
+
+
+
+        
+
+        
+
+<!-- ini untuk pertanyaan -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-10 text-center">
+                <h4 style="font-weight: bold; color: #000000; font-style: italic; margin-bottom: 50px;">
+                   Unsur Pertanyaan Yang Dipilih
+                </h4>
+{% if hasil %}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>No</th>
+                <th>Pertanyaan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for q in semua_pertanyaan %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ q }}</td>
+            </tr>
+            {% endfor %}
+
+            <tr>
+                <td colspan="2" class="text-center">
+                    <strong>Hukuman Maksimal Yang Dapat Dikenakan: {{ hukuman_tertinggi }}</strong>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>Tidak ditemukan dasar hukum yang sesuai dengan jawaban Anda.</p>
+{% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer-area mt-5">
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-sm-6 col-xl-4">
+                <div class="single-footer-widget footer_1">
+                    <a href="{{ url_for('home') }}">
+                        <img src="{{ url_for('static', filename='img/footer-logo.png') }}" alt="Footer Logo">
+                    </a>
+                    <p>Website ini dibuat untuk membantu memahami ketentuan hukum mengenai tindak pidana pencurian, termasuk pasal KUHP dan referensi putusan pengadilan.</p>
+                    <div class="social_icon">
+                        <a href="#"><i class="ti-facebook"></i></a>
+                        <a href="#"><i class="ti-twitter-alt"></i></a>
+                        <a href="#"><i class="ti-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-4">
+                <div class="single-footer-widget">
+                    <h4>Topik Hukum</h4>
+                    <ul>
+                        <li><a href="#">Pencurian</a></li>
+                        <li><a href="#">Perampokan</a></li>
+                        <li><a href="#">Pasal KUHP Terkait</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-4">
+                <div class="single-footer-widget footer_3">
+                    <div class="footer_img">
+                        <div class="single_footer_img">
+                            <img src="{{ url_for('static', filename='img/footer_img/footer_img_1.png') }}" alt="">
+                            <a href="#"><i class="ti-instagram"></i></a>
+                        </div>
+                        <div class="single_footer_img">
+                            <img src="{{ url_for('static', filename='img/footer_img/footer_img_2.png') }}" alt="">
+                            <a href="#"><i class="ti-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="copyright_part_text text-center">
+                    <p class="footer-text m-0">
+                        &copy; <script>document.write(new Date().getFullYear());</script> All rights reserved | Developed for Surya Law Website
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- JS Scripts -->
+<script src="{{ url_for('static', filename='js/jquery-1.12.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery.magnific-popup.js') }}"></script>
+<script src="{{ url_for('static', filename='js/swiper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/masonry.pkgd.js') }}"></script>
+<script src="{{ url_for('static', filename='js/owl.carousel.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/slick.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gijgo.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery.nice-select.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hasil Analisa Sistem</title>
+</head>
+<body>
+    <h2>Hasil Analisa Sistem</h2>
+
+    {% if hasil %}
+        <p>Sistem telah menentukan jenis kejahatan dan memberikan saran hukum berdasarkan jawaban Anda.</p>
+        <h3>Dasar Hukum yang Ditemukan:</h3>
+        <ul>
+            {% for item in hasil %}
+            <li>
+                <strong>{{ item.pasal.pasal }}</strong><br>
+                <em>{{ item.pasal.pelanggaran }}</em><br>
+                <p><strong>Deskripsi:</strong> {{ item.pasal.deskripsi }}</p>
+                <p><strong>Hukuman Maksimal:</strong> {{ item.pasal.hukuman_max }}</p>
+                <p><strong>Unsur yang cocok:</strong> {{ item.matched_tokens | join(', ') }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <h3>Unsur Jawaban yang Anda Pilih:</h3>
+        <ul>
+            {% for j in jawaban %}
+            <li>{{ j }}</li>
+            {% endfor %}
+        </ul>
+
+        <p>Berdasarkan rumusan pidana pada pasal di atas, keputusan sistem cocok dengan unsur pidana yang Anda pilih, dan pasal-pasal tersebut layak dijadikan dasar hukum penuntutan.</p>
+    {% else %}
+        <p><strong>Tidak ditemukan pasal yang cocok sepenuhnya</strong> berdasarkan jawaban Anda. Coba periksa kembali jawaban yang diberikan.</p>
+    {% endif %}
+
+    <a href="{{ url_for('home') }}">Kembali ke Beranda</a>
+</body>
+</html>
