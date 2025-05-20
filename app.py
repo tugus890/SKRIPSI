@@ -155,6 +155,10 @@ def forward_chaining(jawaban):
     max_hukuman_angka = 0
     max_hukuman_text = ''
     max_denda = ''
+    pasal_id_hukuman_max = None  # ← untuk menyimpan pasal_id hukuman tertinggi
+
+    pasal_data_dict = {}  # ← menyimpan data pasal berdasarkan pasal_id
+    aturan_tercocok = []  # ← menyimpan aturan yang cocok
 
     for aturan in aturan_list:
         kondisi_asli = aturan['kondisi']
@@ -176,14 +180,12 @@ def forward_chaining(jawaban):
                 if pasal_data:
                     hukuman = pasal_data['hukuman_max']
                     denda = pasal_data.get('denda', '').strip()
-
-                    # Cari dokumen perkara yang terkait
-                    cursor.execute("SELECT * FROM perkara WHERE id_pasal = %s", (aturan['pasal_id'],))
-                    perkara_data = cursor.fetchone()
+                    pasal_data_dict[aturan['pasal_id']] = pasal_data  # simpan pasal data
 
                     # Simpan jika Seumur Hidup atau Mati
                     if any(prioritas in hukuman for prioritas in prioritas_hukuman):
                         hukuman_tertinggi = hukuman
+                        pasal_id_hukuman_max = aturan['pasal_id']
                     else:
                         angka = re.search(r'\d+', hukuman)
                         if angka:
@@ -192,25 +194,41 @@ def forward_chaining(jawaban):
                                 max_hukuman_angka = angka_val
                                 max_hukuman_text = hukuman
                                 max_denda = denda
+                                pasal_id_hukuman_max = aturan['pasal_id']
                             elif angka_val == max_hukuman_angka and denda:
                                 max_denda = denda
-                        elif not max_hukuman_text:
-                            max_hukuman_text = hukuman
-                            max_denda = denda
-
-                    matched_tokens = [token for token in tokens if token in jawaban_set]
-                    matched_questions = [pertanyaan_dict.get(token, token) for token in matched_tokens]
-
-                    hasil.append({
-                        'pasal': pasal_data,
-                        'perkara': perkara_data,  # ← tambahkan data perkara
-                        'matched_tokens': matched_tokens,
-                        'matched_questions': matched_questions,
-                        'kondisi': kondisi_asli
+                    aturan_tercocok.append({
+                        'aturan': aturan,
+                        'tokens': tokens
                     })
 
         except Exception as e:
             print(f"Error eval kondisi: {kondisi_eval} -> {e}")
+
+    # Proses hasil akhir berdasarkan pasal_id hukuman maksimal
+    for item in aturan_tercocok:
+        aturan = item['aturan']
+        tokens = item['tokens']
+        pasal_id = aturan['pasal_id']
+        pasal_data = pasal_data_dict.get(pasal_id)
+
+        matched_tokens = [token for token in tokens if token in jawaban_set]
+        matched_questions = [pertanyaan_dict.get(token, token) for token in matched_tokens]
+
+        if pasal_id == pasal_id_hukuman_max:
+            # Ambil data perkara hanya untuk pasal hukuman max
+            cursor.execute("SELECT * FROM perkara WHERE id_pasal = %s", (pasal_id,))
+            perkara_data = cursor.fetchone()
+        else:
+            perkara_data = None
+
+        hasil.append({
+            'pasal': pasal_data,
+            'perkara': perkara_data,
+            'matched_tokens': matched_tokens,
+            'matched_questions': matched_questions,
+            'kondisi': aturan['kondisi']
+        })
 
     cursor.close()
     conn.close()
