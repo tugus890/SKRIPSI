@@ -130,7 +130,7 @@
         <hr>
         {% endfor %}
         <input type="hidden" name="step" value="{{ step }}">
-        <button type="submit">
+        <button class="btn-dark" type="submit">
             {% if step + 1 == total %}Selesai{% else %}Lanjut{% endif %}
         </button>
     </form>

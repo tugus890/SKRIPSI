@@ -115,7 +115,17 @@ def result():
 
 @app.route('/dasar')
 def dasar():
-    return render_template('about.html')
+    conn = get_database_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("SELECT pasal, pelanggaran FROM pasal_pencurian")
+    pasal_list = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('service.html', pasal_list=pasal_list)
+
 
 def evaluate_expression(expr, jawaban_set):
     expr = re.sub(r'\b(P\d+)\b', r'"\1" in jawaban_set', expr)
@@ -142,6 +152,10 @@ def forward_chaining(jawaban):
     pertanyaan_data = cursor.fetchall()
     pertanyaan_dict = {p['id']: p['pertanyaan'] for p in pertanyaan_data}
 
+    max_hukuman_angka = 0
+    max_hukuman_text = ''
+    max_denda = ''
+
     for aturan in aturan_list:
         kondisi_asli = aturan['kondisi']
         tokens = re.findall(r'\bP\d+\b', kondisi_asli)
@@ -155,29 +169,41 @@ def forward_chaining(jawaban):
                 if 'AND' in kondisi_asli and not all(token in jawaban_set for token in tokens):
                     continue
 
+                # Ambil data pasal
                 cursor.execute("SELECT * FROM pasal_pencurian WHERE id = %s", (aturan['pasal_id'],))
                 pasal_data = cursor.fetchone()
 
                 if pasal_data:
                     hukuman = pasal_data['hukuman_max']
+                    denda = pasal_data.get('denda', '').strip()
 
-                    # Cek jika mengandung "Seumur Hidup" atau "Mati"
+                    # Cari dokumen perkara yang terkait
+                    cursor.execute("SELECT * FROM perkara WHERE id_pasal = %s", (aturan['pasal_id'],))
+                    perkara_data = cursor.fetchone()
+
+                    # Simpan jika Seumur Hidup atau Mati
                     if any(prioritas in hukuman for prioritas in prioritas_hukuman):
                         hukuman_tertinggi = hukuman
-                    elif hukuman_tertinggi not in prioritas_hukuman:
-                        # Ambil angka hukuman tertinggi jika bukan "Seumur Hidup" / "Mati"
+                    else:
                         angka = re.search(r'\d+', hukuman)
                         if angka:
-                            angka = int(angka.group())
-                            angka_tertinggi = re.search(r'\d+', hukuman_tertinggi)
-                            if not angka_tertinggi or int(angka_tertinggi.group()) < angka:
-                                hukuman_tertinggi = hukuman
+                            angka_val = int(angka.group())
+                            if angka_val > max_hukuman_angka:
+                                max_hukuman_angka = angka_val
+                                max_hukuman_text = hukuman
+                                max_denda = denda
+                            elif angka_val == max_hukuman_angka and denda:
+                                max_denda = denda
+                        elif not max_hukuman_text:
+                            max_hukuman_text = hukuman
+                            max_denda = denda
 
                     matched_tokens = [token for token in tokens if token in jawaban_set]
                     matched_questions = [pertanyaan_dict.get(token, token) for token in matched_tokens]
 
                     hasil.append({
                         'pasal': pasal_data,
+                        'perkara': perkara_data,  # ← tambahkan data perkara
                         'matched_tokens': matched_tokens,
                         'matched_questions': matched_questions,
                         'kondisi': kondisi_asli
@@ -188,7 +214,16 @@ def forward_chaining(jawaban):
 
     cursor.close()
     conn.close()
+
+    # Jika tidak ada Seumur Hidup/Mati, gunakan angka tertinggi + denda jika ada
+    if not hukuman_tertinggi:
+        hukuman_tertinggi = max_hukuman_text
+        if max_denda:
+            hukuman_tertinggi += f" dan Denda {max_denda}"
+
     return hasil, hukuman_tertinggi
+
+
 
 
 if __name__ == '__main__':

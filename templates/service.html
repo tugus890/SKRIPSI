@@ -49,13 +49,13 @@
                                 </li>
                                
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url_for('service') }}">Dasar Hukum</a>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('dasar') }}">Dasar Hukum</a></li>
                                 </li>
                               
                                 
                             </ul>
                         </div>
-                        <a href="{{ url_for('blog') }}" class="d-none d-sm-block menu_btn">Cek Hukum</a>
+                        <a href="{{ url_for('practice') }}" class="d-none d-sm-block menu_btn">Cek Hukum</a>
                     </nav>
                 </div>
             </div>
@@ -86,72 +86,23 @@
         <div class="container">
             <div class="row align-items-stretch">
                 <!-- Pasal 362 -->
-                <div class="col-lg-3 col-sm-6">
-                    <div class="single_service_part">
-                        <div class="single_service_text">
-                            <span class="flaticon-law"></span>
-                            <h2>Pasal 362</h2>
-                            <h4>Pencurian Biasa</h4>
-                        </div>
-                    </div>
+                <div class="container">
+    <div class="row">
+        {% for pasal in pasal_list %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="single_service_part p-3 border rounded shadow-sm text-center h-100">
+                <div class="single_service_text">
+                    <span class="flaticon-law display-4 "></span>
+                    <h2 class="mt-3">{{ pasal.pasal }}</h2>
+                    <h4 >{{ pasal.pelanggaran }}</h4>
                 </div>
-                <!-- Pasal 363 -->
-                <div class="col-lg-3 col-sm-6">
-                    <div class="single_service_part">
-                        <div class="single_service_text">
-                            <span class="flaticon-law"></span>
-                            <h2>Pasal 363</h2>
-                            <h4>Pencurian Dengan Pemberatan</h4>
-                        </div>
-                    </div>
-                </div>
-                <!-- Pasal 364 -->
-                <div class="col-lg-3 col-sm-6">
-                    <div class="single_service_part">
-                        <div class="single_service_text">
-                            <span class="flaticon-law"></span>
-                            <h2>Pasal 364</h2>
-                            <h4>Pencurian Ringan</h4>
-                        </div>
-                    </div>
-                </div>
-                <!-- Pasal 365 Ayat 1 -->
-                <div class="col-lg-3 col-sm-6">
-                    <div class="single_service_part">
-                        <div class="single_service_text">
-                            <span class="flaticon-law"></span>
-                            <h2>Pasal 365 </h2>
-                            <h4>Pencurian Dengan Kekerasan</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="single_service_part">
-                        <div class="single_service_text">
-                            <span class="flaticon-law"></span>
-                            <h2>Pasal 366</h2>
-                            <h4>Pencurian Oleh Dua Orang Atau Lebih Dengan Bersekutu</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="single_service_part">
-                        <div class="single_service_text">
-                            <span class="flaticon-law"></span>
-                            <h2>Pasal 365 Ayat 2</h2>
-                            <h4>Pencurian Oleh Dua Orang Atau Lebih Dengan Bersekutu</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="single_service_part">
-                        <div class="single_service_text">
-                            <span class="flaticon-law"></span>
-                            <h2>Pasal 365 Ayat 2</h2>
-                            <h4>Pencurian Oleh Dua Orang Atau Lebih Dengan Bersekutu</h4>
-                        </div>
-                    </div>
-                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+                
             </div>
         </div>
     </section>
@@ -160,211 +111,64 @@
     <!-- servicing end-->
 
     <!--::review_part start::-->
-    <section class="review_part section_padding section_bg">
-        <div class="container">
-            <div class="row align-items-center justify-content-center">
-                <div class="col-lg-9">
-                    <!-- MAIN SLIDES -->
-                    <div class="slider">
-                        <div data-index="1">
-                            <div class="client_review_text text-center">
-                                <p>Thing yielding place gathered heaven second isn't darkness does not good very dry
-                                    morning signs
-                                    isn't for spirit stars man meat beginning. Meat earth. Face seas doesn't life
-                                    doesn't fruit
-                                    brought life gathering also lights isn't day a wherein firmament fruitful read
-                                    ability</p>
-
-                            </div>
-                        </div>
-                        <div data-index="2">
-                            <div class="client_review_text text-center">
-                                <p>Thing yielding place gathered heaven second isn't darkness does not good very dry
-                                    morning
-                                    signs isn't for spirit stars man meat beginning. Meat earth. Face seas doesn't life
-                                    doesn't
-                                    fruit brought life gathering also lights isn't day a wherein firmament fruitful read
-                                    ability</p>
-                            </div>
-                        </div>
-                        <div data-index="3">
-                            <div class="client_review_text text-center">
-                                <p>Thing yielding place gathered heaven second isn't darkness does not good very dry
-                                    morning
-                                    signs isn't for spirit stars man meat beginning. Meat earth. Face seas doesn't life
-                                    doesn't fruit brought life gathering also lights isn't day a wherein firmament
-                                    fruitful
-                                    read ability</p>
-                            </div>
-                        </div>
-                        <div data-index="4">
-                            <div class="client_review_text text-center">
-                                <p>Thing yielding place gathered heaven second isn't darkness does not good very
-                                    dry morning signs isn't for spirit stars man meat beginning. Meat earth.
-                                    Face seas doesn't life doesn't fruit brought life gathering also lights
-                                    isn't day a wherein firmament fruitful read ability</p>
-                            </div>
-                        </div>
+   <footer class="footer-area mt-5">
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-sm-6 col-xl-4">
+                <div class="single-footer-widget footer_1">
+                    <a href="{{ url_for('home') }}">
+                        <img src="{{ url_for('static', filename='img/footer-logo.png') }}" alt="Footer Logo">
+                    </a>
+                    <p>Website ini dibuat untuk membantu memahami ketentuan hukum mengenai tindak pidana pencurian, termasuk pasal KUHP dan referensi putusan pengadilan.</p>
+                    <div class="social_icon">
+                        <a href="#"><i class="ti-facebook"></i></a>
+                        <a href="#"><i class="ti-twitter-alt"></i></a>
+                        <a href="#"><i class="ti-instagram"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <!-- THUMBNAILS -->
-                    <div class="slider-nav-thumbnails">
-                        <div class="slider-thumbnails">
-                            <img src="img/client/client_1.png" alt="slideimg" class="image">
-                            <div class="client_review_text text-center">
-                                <h3>Daniel E Gilcritst</h3>
-                                <h5>Richard Kellerman</h5>
-                            </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-4">
+                <div class="single-footer-widget">
+                    <h4>Topik Hukum</h4>
+                    <ul>
+                        <li><a href="#">Pencurian</a></li>
+                        <li><a href="#">Perampokan</a></li>
+                        <li><a href="#">Pasal KUHP Terkait</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-4">
+                <div class="single-footer-widget footer_3">
+                    <div class="footer_img">
+                        <div class="single_footer_img">
+                            <img src="{{ url_for('static', filename='img/footer_img/footer_img_1.png') }}" alt="">
+                            <a href="#"><i class="ti-instagram"></i></a>
                         </div>
-                        <div class="slider-thumbnails">
-                            <img src="img/client/client_2.png" alt="slideimg" class="image">
-                            <div class="client_review_text text-center">
-                                <h3>Daniel E Gilcritst</h3>
-                                <h5>Manager, Vision</h5>
-                            </div>
-                        </div>
-                        <div class="slider-thumbnails">
-                            <img src="img/client/client_3.png" alt="slideimg" class="image">
-                            <div class="client_review_text text-center">
-                                <h3>Richard Kellerman</h3>
-                                <h5>Manager, Vision</h5>
-                            </div>
-                        </div>
-                        <div class="slider-thumbnails">
-                            <img src="img/client/client_4.png" alt="slideimg" class="image">
-                            <div class="client_review_text text-center">
-                                <h3>Daniel E Gilcritst</h3>
-                                <h5>Manager, Vision</h5>
-                            </div>
-                        </div>
-                        <div class="slider-thumbnails">
-                            <img src="img/client/client_1.png" alt="slideimg" class="image">
-                            <div class="client_review_text text-center">
-                                <h3>Richard Kellerman</h3>
-                                <h5>Manager, Vision</h5>
-                            </div>
-                        </div>
-                        <div class="slider-thumbnails">
-                            <img src="img/client/client_2.png" alt="slideimg" class="image">
-                            <div class="client_review_text text-center">
-                                <h3>Daniel E Gilcritst</h3>
-                                <h5>Manager, Vision</h5>
-                            </div>
+                        <div class="single_footer_img">
+                            <img src="{{ url_for('static', filename='img/footer_img/footer_img_2.png') }}" alt="">
+                            <a href="#"><i class="ti-instagram"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-    <!--::blog_part end::-->
+    </div>
 
-
-    <!-- footer part start-->
-    <footer class="footer-area">
-        <div class="container">
-            <div class="row justify-content-between">
-                <div class="col-sm-6 col-xl-3">
-                    <div class="single-footer-widget footer_1">
-                        <a href="index.html"> <img src="img/footer-logo.png" alt=""> </a>
-                        <p>Created. Image moving living fowl earth fruitful. Two hath first you're doesn you
-                            life above. Living give and earth light for appear moved their behold </p>
-                        <div class="social_icon">
-                            <a href="#"> <i class="ti-facebook"></i> </a>
-                            <a href="#"> <i class="ti-twitter-alt"></i> </a>
-                            <a href="#"> <i class="ti-instagram"></i> </a>
-                            <a href="#"> <i class="ti-skype"></i> </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xl-3">
-                    <div class="single-footer-widget">
-                        <h4>Our Service</h4>
-                        <ul>
-                            <li><a href="#">Car accident</a></li>
-                            <li><a href="#">Personal injury</a></li>
-                            <li><a href="#">Family law</a></li>
-                            <li><a href="#">Bank and financial</a></li>
-                            <li><a href="#">Capital market</a></li>
-                            <li><a href="#">Employment Law</a></li>
-                        </ul>
-
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xl-3">
-                    <div class="single-footer-widget footer_icon">
-                        <h4>Contact Info</h4>
-                        <p>4361 Morningview Lane Artland
-                            Latimer, IA 50452</p>
-                        <ul>
-                            <li><a href="#"><i class="ti-mobile"></i>+02 - 32 365 2654</a></li>
-                            <li><a href="#"><i class="ti-email"></i>ariclaw@law.com</a></li>
-                            <li><a href="#"><i class="ti-world"></i> ariclawyerfirm.com</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xl-3">
-                    <div class="single-footer-widget footer_3">
-                        <h4>Instagram</h4>
-                        <div class="footer_img">
-                            <div class="single_footer_img">
-                                <img src="img/footer_img/footer_img_1.png" alt="">
-                                <a href="#"><i class="ti-instagram"></i></a>
-                            </div>
-                            <div class="single_footer_img">
-                                <img src="img/footer_img/footer_img_2.png" alt="">
-                                <a href="#"><i class="ti-instagram"></i></a>
-                            </div>
-                            <div class="single_footer_img">
-                                <img src="img/footer_img/footer_img_3.png" alt="">
-                                <a href="#"><i class="ti-instagram"></i></a>
-                            </div>
-                            <div class="single_footer_img">
-                                <img src="img/footer_img/footer_img_4.png" alt="">
-                                <a href="#"><i class="ti-instagram"></i></a>
-                            </div>
-                            <div class="single_footer_img">
-                                <img src="img/footer_img/footer_img_5.png" alt="">
-                                <a href="#"><i class="ti-instagram"></i></a>
-                            </div>
-                            <div class="single_footer_img">
-                                <img src="img/footer_img/footer_img_6.png" alt="">
-                                <a href="#"><i class="ti-instagram"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="copyright_part_text text-center">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-8 col-md-12">
-                                    <p class="footer-text m-0"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-                                </div>
-                                <div class="col-lg-4 col-md-12">
-                                    <div class="footer_menu">
-                                        <ul>
-                                            <li><a href="#">Home</a></li>
-                                            <li><a href="#">Services</a></li>
-                                            <li><a href="#">Careers</a></li>
-                                            <li><a href="#">Faq</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Copyright -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="copyright_part_text text-center">
+                    <p class="footer-text m-0">
+                        &copy; <script>document.write(new Date().getFullYear());</script> All rights reserved | Developed for Surya Law Website
+                    </p>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
     <!-- footer part end-->
 
     <!-- jquery plugins here-->
