@@ -7,10 +7,10 @@ app.secret_key = 'rahasia'
 
 def get_database_connection():
     return mysql.connector.connect(
-        host="localhost",
+        host="mysql.railway.internal",
         user="root",
-        password="",
-        database="sistem_pakar_pencurian"
+        password="wAEZjtMKvXbDvgaxxALFxlqQSaJyoSjW",
+        database="railway"
     )
 
 def get_aturan():
