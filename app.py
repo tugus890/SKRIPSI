@@ -34,10 +34,11 @@ def practice():
     connection = get_database_connection()
     cursor = connection.cursor(dictionary=True)
     cursor.execute("""
-        SELECT DISTINCT k.id, k.nama
-        FROM pertanyaan p
-        LEFT JOIN kategori k ON p.id_kategori = k.id
-        ORDER BY CASE WHEN p.id_kategori IS NULL THEN 0 ELSE 1 END, k.id
+       SELECT DISTINCT k.id, k.nama, p.id_kategori
+FROM pertanyaan p
+LEFT JOIN kategori k ON p.id_kategori = k.id
+ORDER BY CASE WHEN p.id_kategori IS NULL THEN 0 ELSE 1 END, k.id
+
     """)
     kategori_list = cursor.fetchall()
     cursor.close()
