@@ -127,6 +127,10 @@ def dasar():
     return render_template('service.html', pasal_list=pasal_list)
 
 
+
+import re
+from collections import defaultdict
+
 def evaluate_expression(expr, jawaban_set):
     expr = re.sub(r'\b(P\d+)\b', r'"\1" in jawaban_set', expr)
     expr = expr.replace('AND', 'and').replace('OR', 'or')
@@ -141,25 +145,19 @@ def forward_chaining(jawaban):
     aturan_list = get_aturan()
     hasil = []
 
-    hukuman_tertinggi = ''
     prioritas_hukuman = ["Mati", "Seumur Hidup"]
 
     conn = get_database_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Ambil semua pertanyaan
     cursor.execute("SELECT id, pertanyaan FROM pertanyaan")
     pertanyaan_data = cursor.fetchall()
     pertanyaan_dict = {p['id']: p['pertanyaan'] for p in pertanyaan_data}
 
-    max_hukuman_angka = 0
-    max_hukuman_text = ''
-    max_denda = ''
-    pasal_id_hukuman_max = None  # ← untuk menyimpan pasal_id hukuman tertinggi
+    pasal_data_dict = {}
+    aturan_tercocok = []
 
-    pasal_data_dict = {}  # ← menyimpan data pasal berdasarkan pasal_id
-    aturan_tercocok = []  # ← menyimpan aturan yang cocok
-
+    # Langkah 1: cocokkan aturan
     for aturan in aturan_list:
         kondisi_asli = aturan['kondisi']
         tokens = re.findall(r'\bP\d+\b', kondisi_asli)
@@ -173,30 +171,11 @@ def forward_chaining(jawaban):
                 if 'AND' in kondisi_asli and not all(token in jawaban_set for token in tokens):
                     continue
 
-                # Ambil data pasal
                 cursor.execute("SELECT * FROM pasal_pencurian WHERE id = %s", (aturan['pasal_id'],))
                 pasal_data = cursor.fetchone()
 
                 if pasal_data:
-                    hukuman = pasal_data['hukuman_max']
-                    denda = pasal_data.get('denda', '').strip()
-                    pasal_data_dict[aturan['pasal_id']] = pasal_data  # simpan pasal data
-
-                    # Simpan jika Seumur Hidup atau Mati
-                    if any(prioritas in hukuman for prioritas in prioritas_hukuman):
-                        hukuman_tertinggi = hukuman
-                        pasal_id_hukuman_max = aturan['pasal_id']
-                    else:
-                        angka = re.search(r'\d+', hukuman)
-                        if angka:
-                            angka_val = int(angka.group())
-                            if angka_val > max_hukuman_angka:
-                                max_hukuman_angka = angka_val
-                                max_hukuman_text = hukuman
-                                max_denda = denda
-                                pasal_id_hukuman_max = aturan['pasal_id']
-                            elif angka_val == max_hukuman_angka and denda:
-                                max_denda = denda
+                    pasal_data_dict[aturan['pasal_id']] = pasal_data
                     aturan_tercocok.append({
                         'aturan': aturan,
                         'tokens': tokens
@@ -205,7 +184,54 @@ def forward_chaining(jawaban):
         except Exception as e:
             print(f"Error eval kondisi: {kondisi_eval} -> {e}")
 
-    # Proses hasil akhir berdasarkan pasal_id hukuman maksimal
+    # Langkah 2: kelompokkan aturan yang punya kondisi sama
+    kondisi_grup = defaultdict(list)
+    for item in aturan_tercocok:
+        kondisi_grup[item['aturan']['kondisi']].append(item['aturan']['pasal_id'])
+
+    # Langkah 3: tentukan hukuman dan denda tertinggi per grup
+    hukuman_tertinggi = ''
+    denda_tertinggi = 0
+    pasal_id_hukuman_max = None
+
+    for kondisi, pasal_ids in kondisi_grup.items():
+        max_hukuman_text = ''
+        max_hukuman_angka = 0
+        max_denda_val = 0
+        max_pasal_id = None
+
+        for pid in pasal_ids:
+            pasal_data = pasal_data_dict.get(pid)
+            if not pasal_data:
+                continue
+
+            hukuman = pasal_data.get('hukuman_max', '')
+            denda_raw = pasal_data.get('denda', '').replace('Rp.', '').replace('.', '').replace(',', '').strip()
+            denda_val = int(denda_raw) if denda_raw.isdigit() else 0
+
+            # Tentukan hukuman tertinggi
+            if any(p in hukuman for p in prioritas_hukuman):
+                max_hukuman_text = hukuman
+                max_pasal_id = pid
+            else:
+                angka = re.search(r'\d+', hukuman)
+                if angka:
+                    angka_val = int(angka.group())
+                    if angka_val > max_hukuman_angka:
+                        max_hukuman_angka = angka_val
+                        max_hukuman_text = hukuman
+                        max_pasal_id = pid
+
+            if denda_val > max_denda_val:
+                max_denda_val = denda_val
+
+        # Simpan jika grup ini punya hukuman tertinggi global
+        if any(p in max_hukuman_text for p in prioritas_hukuman) or max_hukuman_angka > 0:
+            hukuman_tertinggi = max_hukuman_text
+            denda_tertinggi = max_denda_val
+            pasal_id_hukuman_max = max_pasal_id
+
+    # Langkah 4: siapkan hasil akhir
     for item in aturan_tercocok:
         aturan = item['aturan']
         tokens = item['tokens']
@@ -216,7 +242,6 @@ def forward_chaining(jawaban):
         matched_questions = [pertanyaan_dict.get(token, token) for token in matched_tokens]
 
         if pasal_id == pasal_id_hukuman_max:
-            # Ambil data perkara hanya untuk pasal hukuman max
             cursor.execute("SELECT * FROM perkara WHERE id_pasal = %s", (pasal_id,))
             perkara_data = cursor.fetchone()
         else:
@@ -233,16 +258,18 @@ def forward_chaining(jawaban):
     cursor.close()
     conn.close()
 
-    # Jika tidak ada Seumur Hidup/Mati, gunakan angka tertinggi + denda jika ada
-    if not hukuman_tertinggi:
-        hukuman_tertinggi = max_hukuman_text
-        if max_denda:
-            hukuman_tertinggi += f" dan Denda {max_denda}"
+    # Format hukuman akhir
+    if hukuman_tertinggi:
+        if denda_tertinggi:
+            hukuman_tertinggi += f" dan Denda {denda_tertinggi:,}".replace(',', '.')
+    else:
+        hukuman_tertinggi = "Tidak Diketahui"
 
     return hasil, hukuman_tertinggi
 
 
 
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0',debug=True)
