@@ -237,6 +237,178 @@
     </div>
 </section>
 
+<!-- Tambahkan di bawah bagian Unsur Pertanyaan Yang Dipilih, sebelum </section> penutup -->
+{% if hasil %}
+<section class="related-pasals mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <h4 style="font-weight: bold; color: #000000; font-style: italic; margin-bottom: 30px;">
+                    Hasil Analisa Pasal Yang Dikenakan
+                </h4>
+
+                {% set pasal_max = hasil | selectattr('is_hukuman_max') | list %}
+                {% if pasal_max %}
+                                <h5 style="font-style: italic; margin-bottom: 20px;">Pasal : {{ pasal_max[0].pasal.pasal }} KUHP</h5>
+
+               <table class="table table-bordered text-left">
+    <thead class="thead-dark">
+        <tr>
+            <th>Pasal</th>
+            <th>Pelanggaran</th>
+            <th>Deskripsi</th>
+            <th>Hukuman Maksimal</th>
+            <th>Denda</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in pasal_max %}
+            {% if item.aturan_juncto %}
+            
+            {% endif %}
+            <tr>
+                <td>{{ item.pasal.pasal }}</td>
+                <td><em>{{ item.pasal.pelanggaran }}</em></td>
+                <td>{{ item.pasal.deskripsi }}</td>
+                <td>{{ item.pasal.hukuman_max }}</td>
+                <td>
+                    {% if item.pasal.denda %}
+                Rp. {{ item.pasal.denda }}
+                    {% else %}-{% endif %}
+                </td>
+            </tr>
+              {% for j in item.aturan_juncto %}
+            <tr>
+                
+                    
+                      
+                             <td colspan="5" class="text-center"><strong>Junto</strong></td>
+
+                        
+                 
+                
+            </tr>
+                 <td>{{ j.pasal.pasal }}</td>
+                <td><em>{{ j.pasal.pelanggaran }}</em></td>
+                <td>{{ j.pasal.deskripsi }}</td>
+                <td>{{ j.pasal.hukuman_max }}</td>
+                <td>
+                    {% if j.pasal.denda %}
+Rp. {{ "{:,}".format(j.pasal.denda|int).replace(',', '.') }}
+                    {% else %}-{% endif %}
+                </td>
+
+            <tr>
+                
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-danger">Tidak ada pasal yang relevan ditemukan berdasarkan unsur yang dipilih.</p>
+{% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% set non_max_items = hasil | selectattr('is_hukuman_max', 'equalto', False) | list %}
+
+{% if non_max_items %}
+<section class="related-pasals mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <h4 style="font-weight: bold; color: #000000; font-style: italic; margin-bottom: 30px;">
+                    Pasal Dengan Kesamaan Unsur Lain 
+                </h4>
+
+                <div class="row">
+                    {% for item in non_max_items %}
+                        {% if item.pasal.id not in pasal_terpakai %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ item.pasal.pasal }}</h5>
+                                    <p class="card-text">{{ item.pasal.pelanggaran }}</p>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal{{ loop.index }}">
+                                        Lihat
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% else %}
+<br>
+ <h4 style="font-weight: bold; color: #000000; font-style: italic; margin-bottom: 30px; text-align: center;">
+                    Pasal Dengan Kesamaan Unsur Lain 
+                </h4>
+<p style="text-align: center;" class="text-danger">Tidak ada pasal yang relevan ditemukan berdasarkan unsur yang dipilih.</p>
+{% endif %}
+
+
+<!-- Modals untuk setiap pasal -->
+{% for item in hasil %}
+    {% if not item.is_hukuman_max %}
+    <div class="modal fade" id="modal{{ loop.index }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ loop.index }}" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel{{ loop.index }}">Detail Pasal {{ item.pasal.pasal }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Pasal</th>
+                  <th>Pelanggaran</th>
+                  <th>Deskripsi</th>
+                  <th>Hukuman Maksimal</th>
+                  <th>Denda</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ item.pasal.pasal }}</td>
+                  <td>{{ item.pasal.pelanggaran }}</td>
+                  <td>{{ item.pasal.deskripsi }}</td>
+                  <td>{{ item.pasal.hukuman_max }}</td>
+                  <td>
+                    {% if item.pasal.denda %}
+                        Rp. {{ "{:,}".format(item.pasal.denda|int) }}
+                    {% else %}-{% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h6 class="mt-4">Unsur Pertanyaan yang Sama:</h6>
+            <ul>
+              {% for q in item.matched_questions %}
+              <li>{{ q }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endif %}
 
 <!-- Footer -->
 <footer class="footer-area mt-5">

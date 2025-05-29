@@ -162,8 +162,7 @@ def forward_chaining(jawaban):
         try:
             is_match = eval(kondisi_eval)
             if is_match:
-                if 'AND' in kondisi_asli and not all(token in jawaban_set for token in tokens):
-                    continue
+                
 
                 cursor.execute("SELECT * FROM pasal_pencurian WHERE id = %s", (aturan['pasal_id'],))
                 pasal_data = cursor.fetchone()
@@ -235,8 +234,25 @@ def forward_chaining(jawaban):
         matched_questions = [pertanyaan_dict.get(token, token) for token in matched_tokens]
 
         # ✅ Ambil perkara HANYA jika pasal ini adalah hukuman maksimal
-        perkara_list = []
+        aturan_juncto_data = []
+        perkara_list = []  # ← Inisialisasi default kosong
+
         if pasal_id == pasal_id_hukuman_max:
+            # Cari aturan lain yang memiliki kondisi sama tapi pasal berbeda
+            kondisi_yang_sama = aturan['kondisi']
+            for kandidat in aturan_tercocok:
+                aturan_kandidat = kandidat['aturan']
+                if (
+                    aturan_kandidat['kondisi'] == kondisi_yang_sama
+                    and aturan_kandidat['pasal_id'] != pasal_id
+                ):
+                    pasal_juncto = pasal_data_dict.get(aturan_kandidat['pasal_id'])
+                    if pasal_juncto:
+                        aturan_juncto_data.append({
+                            'aturan': aturan_kandidat,
+                            'pasal': pasal_juncto
+                        })
+            
             cursor.execute("SELECT * FROM perkara WHERE id_pasal = %s", (pasal_id,))
             perkara_list = cursor.fetchall()
 
@@ -246,8 +262,10 @@ def forward_chaining(jawaban):
             'matched_tokens': matched_tokens,
             'matched_questions': matched_questions,
             'kondisi': aturan['kondisi'],
-            'is_hukuman_max': pasal_id == pasal_id_hukuman_max
+            'is_hukuman_max': pasal_id == pasal_id_hukuman_max,
+            'aturan_juncto': aturan_juncto_data if pasal_id == pasal_id_hukuman_max else []
         })
+
 
     cursor.close()
     conn.close()
