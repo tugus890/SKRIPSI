@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/all.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
 
 <!-- Header -->
@@ -194,47 +195,48 @@
 </section>
 
  <section class="service_part section_padding mr_bottom">
-        <div class="container">
-            <div class="row align-items-stretch">
-                <!-- Pasal 362 -->
-                <div class="container">
-    <div class=" row justify-content-center">
-    {% for item in hasil %}
-        {% if item.perkara %}
-        <div class="col-lg-6 col-md-6 col-sm-6 mb-4">
-            <div class="single_service_part p-3 border rounded shadow-sm text-center h-100">
-                <div class="single_service_text">
-                    <span class="flaticon-law display-4 "></span>
-                    <h2 class="mt-3">Pengadilan {{ item.perkara.nama_pn }}</h2>
-                    <h2 class="mt-3">{{ item.perkara.tahun_putusan }}</h2>
-                    {% if item.perkara.dokumen %}
-                    <a href="{{ url_for('static', filename='perkara/' + item.perkara.dokumen) }}"
-                    class="btn text-white fw-bold mt-4"
-                    style="background: -webkit-linear-gradient(0deg, #ab7636 0%, #776248 100%);
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 5px;
-                            display: inline-block;"
-                    download>
-                        📄 Unduh Dokumen Putusan
-                    </a>
-
-                    {% else %}
-                    <p class="text-danger"><em>Dokumen belum tersedia</em></p>
-                    {% endif %}
-                </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h4 style="font-weight: bold; color: #000000; font-style: italic; margin-bottom: 50px;">
+                    Perkara Terkait Hukuman Maksimal
+                </h4>
             </div>
         </div>
-        {% endif %}
-    {% endfor %}
-</div>
-
-</div>
-
-                
-            </div>
+        <div class="row justify-content-center">
+            {% for item in hasil %}
+                {% if item.perkara_list %}
+                    {% for p in item.perkara_list %}
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="single_service_part p-3 border rounded shadow-sm text-center h-100">
+                            <div class="single_service_text">
+                                <span class="flaticon-law display-4"></span>
+                                <h2 class="mt-3">{{ p.nama_pn }}</h2>
+                                <h2 class="mt-3">{{ p.tahun_putusan }}</h2>
+                                {% if p.dokumen %}
+                                <a href="{{ url_for('static', filename='perkara/' + p.dokumen) }}"
+                                   class="btn text-white fw-bold mt-4"
+                                   style="background: -webkit-linear-gradient(0deg, #ab7636 0%, #776248 100%);
+                                          border: none;
+                                          padding: 10px 20px;
+                                          border-radius: 5px;
+                                          display: inline-block;"
+                                   download>
+                                    📄 Unduh Dokumen Putusan
+                                </a>
+                                {% else %}
+                                <p class="text-danger"><em>Dokumen belum tersedia</em></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
         </div>
-    </section>
+    </div>
+</section>
+
 
 <!-- Footer -->
 <footer class="footer-area mt-5">

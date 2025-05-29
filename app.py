@@ -7,10 +7,12 @@ app.secret_key = 'rahasia'
 
 def get_database_connection():
     return mysql.connector.connect(
-        host="mysql.railway.internal",
+        host="localhost",
         user="root",
-        password="wAEZjtMKvXbDvgaxxALFxlqQSaJyoSjW",
-        database="railway"
+        password="",
+        database="sistem_pakar_pencurian",
+        buffered=True
+        
     )
 
 def get_aturan():
@@ -34,11 +36,10 @@ def practice():
     connection = get_database_connection()
     cursor = connection.cursor(dictionary=True)
     cursor.execute("""
-       SELECT DISTINCT k.id, k.nama, p.id_kategori
-FROM pertanyaan p
-LEFT JOIN kategori k ON p.id_kategori = k.id
-ORDER BY CASE WHEN p.id_kategori IS NULL THEN 0 ELSE 1 END, k.id
-
+        SELECT DISTINCT k.id, k.nama
+        FROM pertanyaan p
+        LEFT JOIN kategori k ON p.id_kategori = k.id
+        ORDER BY CASE WHEN p.id_kategori IS NULL THEN 0 ELSE 1 END, k.id
     """)
     kategori_list = cursor.fetchall()
     cursor.close()
@@ -129,19 +130,10 @@ def dasar():
 
 
 
-import re
-from collections import defaultdict
-
-def evaluate_expression(expr, jawaban_set):
-    expr = re.sub(r'\b(P\d+)\b', r'"\1" in jawaban_set', expr)
-    expr = expr.replace('AND', 'and').replace('OR', 'or')
-    try:
-        return eval(expr)
-    except Exception as e:
-        print(f"Error evaluating: {expr} -> {e}")
-        return False
-
 def forward_chaining(jawaban):
+    from collections import defaultdict
+    import re
+
     jawaban_set = set(jawaban)
     aturan_list = get_aturan()
     hasil = []
@@ -160,6 +152,7 @@ def forward_chaining(jawaban):
 
     # Langkah 1: cocokkan aturan
     for aturan in aturan_list:
+        
         kondisi_asli = aturan['kondisi']
         tokens = re.findall(r'\bP\d+\b', kondisi_asli)
 
@@ -226,13 +219,12 @@ def forward_chaining(jawaban):
             if denda_val > max_denda_val:
                 max_denda_val = denda_val
 
-        # Simpan jika grup ini punya hukuman tertinggi global
         if any(p in max_hukuman_text for p in prioritas_hukuman) or max_hukuman_angka > 0:
             hukuman_tertinggi = max_hukuman_text
             denda_tertinggi = max_denda_val
             pasal_id_hukuman_max = max_pasal_id
 
-    # Langkah 4: siapkan hasil akhir
+    # Langkah 4: siapkan hasil akhir untuk semua pasal cocok
     for item in aturan_tercocok:
         aturan = item['aturan']
         tokens = item['tokens']
@@ -242,18 +234,19 @@ def forward_chaining(jawaban):
         matched_tokens = [token for token in tokens if token in jawaban_set]
         matched_questions = [pertanyaan_dict.get(token, token) for token in matched_tokens]
 
+        # ✅ Ambil perkara HANYA jika pasal ini adalah hukuman maksimal
+        perkara_list = []
         if pasal_id == pasal_id_hukuman_max:
             cursor.execute("SELECT * FROM perkara WHERE id_pasal = %s", (pasal_id,))
-            perkara_data = cursor.fetchone()
-        else:
-            perkara_data = None
+            perkara_list = cursor.fetchall()
 
         hasil.append({
             'pasal': pasal_data,
-            'perkara': perkara_data,
+            'perkara_list': perkara_list,
             'matched_tokens': matched_tokens,
             'matched_questions': matched_questions,
-            'kondisi': aturan['kondisi']
+            'kondisi': aturan['kondisi'],
+            'is_hukuman_max': pasal_id == pasal_id_hukuman_max
         })
 
     cursor.close()
@@ -271,5 +264,7 @@ def forward_chaining(jawaban):
 
 
 
+
 if __name__ == '__main__':
     app.run(debug=True)
+
